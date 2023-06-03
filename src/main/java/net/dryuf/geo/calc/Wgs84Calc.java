@@ -2,7 +2,6 @@ package net.dryuf.geo.calc;
 
 import jakarta.inject.Qualifier;
 import net.dryuf.geo.model.GeoLocation;
-import net.dryuf.geo.model.GeoLocationAlt;
 
 
 /**
@@ -25,10 +24,6 @@ public interface Wgs84Calc
 	public @interface Fast
 	{
 	}
-
-	double[] llaToXyz(GeoLocationAlt location);
-
-	GeoLocationAlt xyzToLla(double[] xyz);
 
 	double distanceLl(GeoLocation a, GeoLocation b);
 }

@@ -17,6 +17,12 @@ public class GeoLocationAlt extends GeoLocation
 {
 	private final double alt;
 
+	public GeoLocationAlt(Builder builder)
+	{
+		super(builder);
+		this.alt = builder().alt;
+	}
+
 	public static GeoLocationAlt of(GeoLocation l, double alt)
 	{
 		return GeoLocationAlt.builder()
@@ -55,5 +61,11 @@ public class GeoLocationAlt extends GeoLocation
 			super.lat(lat);
 			return this;
 		}
+
+		public GeoLocationAlt build()
+		{
+			return new GeoLocationAlt(this);
+		}
+
 	}
 }

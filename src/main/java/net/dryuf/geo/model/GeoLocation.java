@@ -19,8 +19,26 @@ public class GeoLocation
 
 	private final double lat;
 
+	public GeoLocation(Builder builder)
+	{
+		this.lon = builder.lon;
+		this.lat = builder.lat;
+	}
+
+	public static GeoLocation ofLonLat(double lon, double lat)
+	{
+		return GeoLocation.builder()
+			.lon(lon)
+			.lat(lat)
+			.build();
+	}
+
 	@JsonPOJOBuilder(withPrefix = "")
 	public static class Builder
 	{
+		public GeoLocation build()
+		{
+			return new GeoLocation(this);
+		}
 	}
 }
