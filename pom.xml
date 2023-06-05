@@ -36,7 +36,7 @@
 	</description>
 
 	<properties>
-		<javac.version>1.8</javac.version>
+		<javac.version>17</javac.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
@@ -56,11 +56,16 @@
 		<jakarta.inject.version>2.0.1</jakarta.inject.version>
 		<jackson.version>2.14.1</jackson.version>
 
+		<guava.version>32.0.0-jre</guava.version>
+
 		<jts.version>1.19.0</jts.version>
 		<proj4j.version>1.3.0</proj4j.version>
 		<geolatte.version>1.9.1</geolatte.version>
 		<geotools.version>29.0</geotools.version>
-		<lucene-spatial.version>8.4.1</lucene-spatial.version>
+
+		<hibernate.version>6.2.3.Final</hibernate.version>
+
+		<postgres.version>42.6.0</postgres.version>
 	</properties>
 
 	<licenses>
@@ -111,6 +116,11 @@
 							<descriptors>
 								<descriptor>src/test/assembly/assembly.xml</descriptor>
 							</descriptors>
+							<archive>
+								<manifest>
+									<mainClass>org.testng.TestNG</mainClass>
+								</manifest>
+							</archive>
 							<finalName>dryuf-geo-tests</finalName>
 							<appendAssemblyId>true</appendAssemblyId>
 						</configuration>
@@ -236,6 +246,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${postgres.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.locationtech.proj4j</groupId>
 			<artifactId>proj4j</artifactId>
 			<version>${proj4j.version}</version>
@@ -277,6 +299,18 @@
 			<artifactId>geolatte-geom</artifactId>
 			<version>${geolatte.version}</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-spatial</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+
 
 	</dependencies>
 

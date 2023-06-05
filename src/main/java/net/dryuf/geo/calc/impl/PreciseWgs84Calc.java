@@ -23,7 +23,7 @@ public class PreciseWgs84Calc implements Wgs84Calc
 	@Override
 	public double distanceLl(GeoLocation a, GeoLocation b)
 	{
-		GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FIXED), 4326);
+		GeometryFactory geomFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
 		Point aPoint = geomFactory.createPoint(new CoordinateXY(a.getLon(), a.getLat()));
 		Point bPoint = geomFactory.createPoint(new CoordinateXY(b.getLon(), b.getLat()));
