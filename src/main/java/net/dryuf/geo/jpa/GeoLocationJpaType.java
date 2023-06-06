@@ -18,10 +18,6 @@ import java.sql.Types;
 
 public class GeoLocationJpaType extends UserTypeSupport<GeoLocation>
 {
-	private static final WKBReader WKB_READER = new WKBReader();
-
-	private static final WKBWriter WKB_WRITER = new WKBWriter();
-
 	public GeoLocationJpaType()
 	{
 		super(GeoLocation.class, Types.OTHER);
@@ -45,13 +41,14 @@ public class GeoLocationJpaType extends UserTypeSupport<GeoLocation>
 		}
 		Geometry geometry;
 		try {
-			geometry = WKB_READER.read(WKBReader.hexToBytes(value.getValue()));
+			final WKBReader wkbReader = new WKBReader();
+			geometry = wkbReader.read(WKBReader.hexToBytes(value.getValue()));
 			if (!(geometry instanceof Point)) {
 				throw new ParseException("Expected Point, got: " + geometry.getGeometryType());
 			}
 		}
 		catch (ParseException e) {
-			throw new SQLException("Cannot convert PGObject to Geometry");
+			throw new SQLException("Cannot convert PGObject to Geometry", e);
 		}
 		if (rs.wasNull()) {
 			return null;
@@ -67,9 +64,10 @@ public class GeoLocationJpaType extends UserTypeSupport<GeoLocation>
 		if (value == null) {
 			st.setNull(index, Types.OTHER);
 		} else {
+			WKBWriter wkbWriter = new WKBWriter();
 			PGobject object = new PGobject();
 			Point point = GeoLocation.toJtsPoint(value);
-			object.setValue(WKBWriter.toHex(WKB_WRITER.write(point)));
+			object.setValue(WKBWriter.toHex(wkbWriter.write(point)));
 			object.setType("geometry");
 			st.setObject(index, object);
 		}

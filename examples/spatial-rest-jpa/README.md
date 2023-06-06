@@ -66,3 +66,13 @@ META-INF service.
 ```shell
 mvn spring-boot:run
 ```
+
+## Performance
+
+End-to-end performance on i7-1185G7 for querying single filtered item:
+
+| Type                     | Time (ms) |
+|--------------------------|-----------|
+| Explicit conversion      | 5.4       |
+| Implicit UserType        | 5.0       |
+| Implicit TypeContributor | 5.0       |

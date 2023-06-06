@@ -1,6 +1,12 @@
 package net.dryuf.geo.jpa;
 
+import com.google.common.base.Preconditions;
 import net.dryuf.geo.model.GeoLocation;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.Position;
+import org.geolatte.geom.PositionFactory;
+import org.geolatte.geom.Positions;
+import org.geolatte.geom.crs.CoordinateReferenceSystems;
 import org.geolatte.geom.jts.JTS;
 import org.hibernate.boot.model.TypeContributions;
 import org.hibernate.boot.model.TypeContributor;
@@ -19,9 +25,7 @@ import org.locationtech.jts.io.WKBWriter;
 
 public class GeoLocationTypeContributor implements TypeContributor
 {
-	private static final WKBReader WKB_READER = new WKBReader();
-
-	private static final WKBWriter WKB_WRITER = new WKBWriter();
+	public static final PositionFactory<G2D> G2D_POSITION_FACTORY = Positions.getFactoryFor(G2D.class);
 
 	@Override
 	public void contribute(TypeContributions typeContributions, ServiceRegistry serviceRegistry)
@@ -50,14 +54,16 @@ public class GeoLocationTypeContributor implements TypeContributor
 			if (value == null) {
 				return null;
 			}
+			else if (org.geolatte.geom.Geometry.class.isAssignableFrom(type)) {
+				return (X) new org.geolatte.geom.Point<>(
+					G2D_POSITION_FACTORY.mkPosition(value.getLon(), value.getLat()),
+					CoordinateReferenceSystems.WGS84
+					);
+			}
 			else if (CharSequence.class.isAssignableFrom(type)) {
 				return (X) toString(value);
 			}
-			if (org.geolatte.geom.Geometry.class.isAssignableFrom(type)) {
-				return (X) JTS.from(GeoLocation.toJtsPoint(value));
-			}
-
-			if (Geometry.class.isAssignableFrom(type)) {
+			else if (Geometry.class.isAssignableFrom(type)) {
 				return (X) GeoLocation.toJtsPoint(value);
 			}
 			else {
@@ -75,7 +81,10 @@ public class GeoLocationTypeContributor implements TypeContributor
 				return fromString(string);
 			}
 			else if (value instanceof org.geolatte.geom.Point<?> point) {
-				return GeoLocation.fromJtsPoint(JTS.to(point));
+				Preconditions.checkArgument(point.getSRID() == 4326, "Expected SRID 4326 but got: srid=%s",	point.getSRID());
+				final Position coordinate = point.getPosition();
+				Preconditions.checkArgument(coordinate.getCoordinateDimension() == 2, "Expected dimensions 2 but got: dimensions=%s", point.getDimension());
+				return GeoLocation.ofLonLat(coordinate.getCoordinate(0), coordinate.getCoordinate(1));
 			}
 			else if (value instanceof Point point) {
 				return GeoLocation.fromJtsPoint(point);
@@ -86,16 +95,19 @@ public class GeoLocationTypeContributor implements TypeContributor
 		}
 
 		@Override
-		public String toString(GeoLocation value) {
+		public String toString(GeoLocation value)
+		{
+			WKBWriter wkbWriter = new WKBWriter(2, true);
 			Point point = GeoLocation.toJtsPoint(value);
-			return WKBWriter.toHex(WKB_WRITER.write(point));
+			return WKBWriter.toHex(wkbWriter.write(point));
 		}
 
 		@Override
 		public GeoLocation fromString(CharSequence string)
 		{
 			try {
-				Geometry point = WKB_READER.read(WKBReader.hexToBytes(string.toString()));
+				WKBReader wkbReader = new WKBReader();
+				Geometry point = wkbReader.read(WKBReader.hexToBytes(string.toString()));
 				if (point != null && !(point instanceof Point)) {
 					throw new ParseException("Expected Point but got: " + point.getClass().getName());
 				}
